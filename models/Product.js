@@ -5,30 +5,34 @@ class Product {
     this.price = price;
   }
 
-  static #products = [];
-
-  static getAll() {
-    return this.#products;
+  save(db) {
+    if (!db) throw new Error("❌ Product.save(): db is undefined");
+    return db.collection("products").insertOne(this);
   }
 
-  static add(product) {
-    this.#products.push(product);
+  static getAll(db) {
+    if (!db) throw new Error("❌ Product.getAll(): db is undefined");
+    return db.collection("products").find().toArray();
   }
 
-  static findByName(name) {
-    return this.#products.find((product) => product.name === name);
+  static findByName(db, name) {
+    if (!db) throw new Error("❌ Product.findByName(): db is undefined");
+    return db.collection("products").findOne({ name });
   }
 
-  static deleteByName(name) {
-    this.#products = this.#products.filter((product) => product.name !== name);
+  static deleteByName(db, name) {
+    if (!db) throw new Error("❌ Product.deleteByName(): db is undefined");
+    return db.collection("products").deleteOne({ name });
   }
 
-  static getLast() {
-    if (!this.#products.length) {
-      return;
-    }
-
-    return this.#products[this.#products.length - 1];
+  static getLast(db) {
+    if (!db) throw new Error("❌ Product.getLast(): db is undefined");
+    return db.collection("products")
+             .find()
+             .sort({ _id: -1 })
+             .limit(1)
+             .toArray()
+             .then(items => items[0]);
   }
 }
 
